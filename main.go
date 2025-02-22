@@ -3,6 +3,7 @@ package winfiledetails
 import (
 	"fmt"
 	"time"
+	"unsafe"
 
 	"golang.org/x/sys/windows"
 )
@@ -11,7 +12,14 @@ type FileDetails struct {
 	CreationTime   time.Time
 	LastAccessTime time.Time
 	LastWriteTime  time.Time
-	FileVersion    string
+	FileVersion    FileVersion
+}
+
+type FileVersion struct {
+	Major uint16
+	Minor uint16
+	Patch uint16
+	Build uint16
 }
 
 func getInfo(filePath string) (*FileDetails, error) {
@@ -68,38 +76,44 @@ func getTimestamps(handle windows.Handle) (creationTime, lastAccessTime, lastWri
 	return time.Unix(0, ctime.Nanoseconds()), time.Unix(0, atime.Nanoseconds()), time.Unix(0, wtime.Nanoseconds()), nil
 }
 
-func getFileVersion(filePath string) (string, error) {
+func getFileVersion(filePath string) (FileVersion, error) {
+	fileVersion := FileVersion{}
 	var zHandle windows.Handle
 	// https://learn.microsoft.com/en-us/windows/win32/api/winver/nf-winver-getfileversioninfosizea
 	size, err := windows.GetFileVersionInfoSize(filePath, &zHandle)
 	if err != nil {
-		return "", fmt.Errorf("failed to get file version info size: %w", err)
+		return fileVersion, fmt.Errorf("failed to get file version info size: %w", err)
 	}
 
 	// https://learn.microsoft.com/en-us/windows/win32/api/winver/nf-winver-getfileversioninfoa
-	err = windows.GetFileVersionInfo(filePath, 0, size, nil)
+	var ignoredHandle uint32 // described as Ignored in the documentation
+	buffer := make([]byte, size)
+	var lpData unsafe.Pointer = unsafe.Pointer(&buffer[0])
+	err = windows.GetFileVersionInfo(filePath, ignoredHandle, size, lpData)
 	if err != nil {
-		return "", fmt.Errorf("failed to get file version info: %w", err)
-	}
-	fmt.Printf("Size: %v\n", size)
-	fmt.Printf("Handle: %v\n", zHandle)
-	return "", nil
-}
-
-func getFileInformation(handle windows.Handle) error {
-	var data windows.ByHandleFileInformation
-	err := windows.GetFileInformationByHandle(handle, &data)
-	if err != nil {
-		return fmt.Errorf("failed to get file information by handle: %w", err)
+		return fileVersion, fmt.Errorf("failed to get file version info: %w", err)
 	}
 
-	// Print file attributes
-	fmt.Printf("File Attributes: %v\n", data.FileAttributes)
-	fmt.Printf("Volume Serial Number: %v\n", data.VolumeSerialNumber)
+	// https://learn.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea
+	varBuffer := make([]byte, size)
+	var lplpBuffer unsafe.Pointer = unsafe.Pointer(&varBuffer[0])
+	var puLen uint32
+	locale := DefaultLocales[2]
+	localeStr := fmt.Sprintf("%04x%04x", locale.LangID, locale.CharsetID)
+	subBlock := fmt.Sprintf("\\StringFileInfo\\%s\\FileVersion", localeStr)
+	err = windows.VerQueryValue(lpData, subBlock, lplpBuffer, &puLen)
+	if err != nil {
+		return fileVersion, fmt.Errorf("failed to query file version info: %w", err)
+	}
+	if puLen == 0 {
+		return fileVersion, fmt.Errorf("no version info found")
+	}
 
-	fmt.Printf("In handle: %v\n", handle)
+	fixedFileInfo := (*windows.VS_FIXEDFILEINFO)(lplpBuffer)
+	fileVersion.Major = uint16(fixedFileInfo.FileVersionMS >> 16)
+	fileVersion.Minor = uint16(fixedFileInfo.FileVersionMS & 0xFFFF)
+	fileVersion.Patch = uint16(fixedFileInfo.FileVersionLS >> 16)
+	fileVersion.Build = uint16(fixedFileInfo.FileVersionLS & 0xFFFF)
 
-	// windows.GetFileVersionInfo("C:\\Windows\\System32\\notepad.exe", uint32(handle), 0, nil)
-
-	return nil
+	return fileVersion, nil
 }
