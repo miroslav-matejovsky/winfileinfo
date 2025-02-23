@@ -1,1 +1,1 @@
-package winfiledetails
+package winfileinfo

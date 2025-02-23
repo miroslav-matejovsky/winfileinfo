@@ -1,4 +1,4 @@
-package winfiledetails
+package winfileinfo
 
 func GetFixedFileInfo(filePath string) (*FixedFileInfo, error) {
 	fvi, err := initFileVersionInfo(filePath)

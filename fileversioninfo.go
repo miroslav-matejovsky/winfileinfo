@@ -1,4 +1,4 @@
-package winfiledetails
+package winfileinfo
 
 import (
 	"fmt"

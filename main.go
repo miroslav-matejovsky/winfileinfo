@@ -1,4 +1,4 @@
-package winfiledetails
+package winfileinfo
 
 import (
 	"fmt"
@@ -10,6 +10,7 @@ type FileDetails struct {
 	LastAccessTime time.Time
 	LastWriteTime  time.Time
 	FileVersion    FileVersion
+	ProductVersion FileVersion
 }
 
 func getInfo(filePath string) (*FileDetails, error) {
