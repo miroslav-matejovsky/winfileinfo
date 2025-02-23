@@ -10,7 +10,7 @@ import (
 func TestVersionInfo(t *testing.T) {
 	info, err := New(`C:\Windows\System32\notepad.exe`)
 	require.NoError(t, err)
-	version, err := info.GetProperty("FileVersion")
+	version := info.FileVersion()
 	require.NoError(t, err)
 	assert.Equal(t, "10.0.22621.1 (WinBuild.160101.0800)", version)
 }
