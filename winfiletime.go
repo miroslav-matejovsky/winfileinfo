@@ -13,6 +13,7 @@ type WinFileTime struct {
 	LastWriteTime  time.Time
 }
 
+// getFileTime retrieves the creation, last access, and last write times of the file.
 func (wf *WinFile) getFileTime() (*WinFileTime, error) {
 	// Convert path to UTF-16
 	utf16Path, err := windows.UTF16PtrFromString(wf.path)

@@ -22,7 +22,7 @@ func (f WinFileVersion) String() string {
 	return fmt.Sprintf("%d.%d.%d.%d", f.Major, f.Minor, f.Patch, f.Build)
 }
 
-
+// newWinFileInfo creates a new WinFileInfo from the given VS_FIXEDFILEINFO.
 func newWinFileInfo(vsFixedInfo *windows.VS_FIXEDFILEINFO) *WinFileInfo {
 	return &WinFileInfo{
 		FileVersion: WinFileVersion{
