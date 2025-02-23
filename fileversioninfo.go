@@ -59,6 +59,6 @@ func (f *fileVersionInfo) queryFixedFileInfo() (*windows.VS_FIXEDFILEINFO, error
 	data := f.data[start:end]
 	// r := bytes.Reader(varBuffer)
 	// err = binary.Read(varBuffer, binary.LittleEndian, &fixedFileInfo)
-	fixedFileInfo := *(*windows.VS_FIXEDFILEINFO)(unsafe.Pointer(&data))
+	fixedFileInfo := *(*windows.VS_FIXEDFILEINFO)(unsafe.Pointer(&data[0]))
 	return &fixedFileInfo, nil
 }

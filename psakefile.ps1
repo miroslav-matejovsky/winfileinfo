@@ -20,3 +20,11 @@ task fmt {
 task vet {
     go vet ./...
 } -Depends deps -Description "Run go vet"
+
+task lint {
+    golangci-lint run ./...
+} -Depends vet -Description "Run linter"
+
+task test {
+    gotestsum --format testdox -- -v ./...
+} -Depends lint -Description "Run tests"
