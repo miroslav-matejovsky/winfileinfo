@@ -31,8 +31,10 @@ func TestGetFileVersionInfo(t *testing.T) {
 
 	fi, err := GetFixedFileInfo(file)
 	require.NoError(t, err)
-	assert.NotEqual(t, expected.FileType, fi.Signature)
-	assert.NotEqual(t, uint32(0x00000000), fi.StrucVersion)
-	assert.NotEqual(t, uint32(0x00000000), fi.FileVersionMS)
-	assert.NotEqual(t, uint32(0x00000000), fi.FileVersionLS)
+	assert.Equal(t, expected.FileVersion.Major, fi.FileVersion.Major)
+	assert.Equal(t, expected.FileVersion.Minor, fi.FileVersion.Minor)
+	// !!! the bug is bi-zone go-fileversion library, the Patch and Build are swapped
+	// https://github.com/bi-zone/go-fileversion/issues/3
+	assert.Equal(t, expected.FileVersion.Build, fi.FileVersion.Patch)
+	assert.Equal(t, expected.FileVersion.Patch, fi.FileVersion.Build)
 }
