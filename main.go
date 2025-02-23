@@ -31,7 +31,7 @@ func getInfo(filePath string) (*FileDetails, error) {
 		return nil, fmt.Errorf("failed to get timestamps: %w", err)
 	}
 
-	fileVersion, err := GetFileVersion(filePath)
+	fixedFileInfo, err := GetFixedFileInfo(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file version: %w", err)
 	}
@@ -41,7 +41,12 @@ func getInfo(filePath string) (*FileDetails, error) {
 	details.CreationTime = ft.CreationTime
 	details.LastAccessTime = ft.LastAccessTime
 	details.LastWriteTime = ft.LastWriteTime
-	details.FileVersion = fileVersion
+	details.FileVersion = FileVersion{
+		Major: uint16(fixedFileInfo.FileVersionMS >> 16),
+		Minor: uint16(fixedFileInfo.FileVersionMS & 0xFFFF),
+		Patch: uint16(fixedFileInfo.FileVersionLS >> 16),
+		Build: uint16(fixedFileInfo.FileVersionLS & 0xFFFF),
+	}
 
 	return &details, nil
 }

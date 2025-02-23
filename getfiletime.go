@@ -39,7 +39,7 @@ func GetFileTime(filePath string) (*FileTime, error) {
 	// Get timestamps
 	creationTime, lastAccessTime, lastWriteTime, err := getFileTime(handle)
 	if err != nil {
-		err = fmt.Errorf("failed to get timestamps: %w", err)
+		return nil, fmt.Errorf("failed to get timestamps: %w", err)
 	}
 	return &FileTime{
 		CreationTime:   creationTime,

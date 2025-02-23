@@ -2,14 +2,12 @@ package winfiledetails
 
 import (
 	"fmt"
-	"log"
 	"unsafe"
 
-	"github.com/Microsoft/go-winio"
 	"golang.org/x/sys/windows"
 )
 
-func GetFileVersionInfo(filePath string) ([]byte, error) {
+func GetFixedFileInfo(filePath string) (*windows.VS_FIXEDFILEINFO, error) {
 	var zHandle windows.Handle
 	// https://learn.microsoft.com/en-us/windows/win32/api/winver/nf-winver-getfileversioninfosizea
 	size, err := windows.GetFileVersionInfoSize(filePath, &zHandle)
@@ -25,16 +23,23 @@ func GetFileVersionInfo(filePath string) ([]byte, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file version info: %w", err)
 	}
+	return queryFixedFileInfo(lpData)
+}
 
-	// https://learn.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea
-
-	attrs, err := winio.DecodeExtendedAttributes(buffer)
+// https://learn.microsoft.com/en-us/windows/win32/api/verrsrc/ns-verrsrc-vs_fixedfileinfo
+func queryFixedFileInfo(lpData unsafe.Pointer) (*windows.VS_FIXEDFILEINFO, error) {
+	var fixedFileInfo windows.VS_FIXEDFILEINFO
+	size := unsafe.Sizeof(fixedFileInfo)
+	varBuffer := make([]byte, size)
+	var lpBuffer unsafe.Pointer = unsafe.Pointer(&varBuffer[0])
+	var puLen uint32
+	err := windows.VerQueryValue(lpData, "\\", lpBuffer, &puLen)
 	if err != nil {
-		return nil, fmt.Errorf("failed to decode extended attributes: %w", err)
+		return nil, fmt.Errorf("failed to query file version info: %w", err)
 	}
-	for _, attr := range attrs {
-		log.Printf("Attribute: %s", attr)
+	if puLen == 0 {
+		return nil, fmt.Errorf("no version info found")
 	}
-
-	return buffer, nil
+	fixedFileInfo = *(*windows.VS_FIXEDFILEINFO)(lpBuffer)
+	return &fixedFileInfo, nil
 }

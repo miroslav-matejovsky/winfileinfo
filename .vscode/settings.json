@@ -1,6 +1,9 @@
 {
     "cSpell.words": [
         "Filetime",
+        "fileversion",
+        "FIXEDFILEINFO",
+        "Struc",
         "winfiledetails",
         "winio",
         "wtime"

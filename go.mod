@@ -8,7 +8,13 @@ require (
 )
 
 require (
+	github.com/akavel/rsrc v0.10.2 // indirect
+	github.com/josephspurrier/goversioninfo v1.4.1 // indirect
+)
+
+require (
 	github.com/Microsoft/go-winio v0.6.2
+	github.com/bi-zone/go-fileversion v1.0.0
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da
