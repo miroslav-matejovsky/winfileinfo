@@ -5,6 +5,7 @@
         "FIXEDFILEINFO",
         "Struc",
         "winfiledetails",
+        "winfileinfo",
         "winio",
         "wtime"
     ]
