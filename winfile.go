@@ -22,6 +22,10 @@ func NewWinFile(path string) (*WinFile, error) {
 	return &WinFile{path: path}, nil
 }
 
+func (wf *WinFile) GetFileTime() (*WinFileTime, error) {
+	return wf.getFileTime()
+}
+
 func (wf *WinFile) GetFileInfo() (*WinFileInfo, error) {
 	ffi, err := wf.GetFixedFileInfo()
 	if err != nil {
