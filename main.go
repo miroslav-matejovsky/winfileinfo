@@ -31,7 +31,7 @@ func getInfo(filePath string) (*FileDetails, error) {
 		return nil, fmt.Errorf("failed to get timestamps: %w", err)
 	}
 
-	fileVersion, err := GetFileVersionInfo(filePath)
+	fileVersion, err := GetFileVersion(filePath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file version: %w", err)
 	}
