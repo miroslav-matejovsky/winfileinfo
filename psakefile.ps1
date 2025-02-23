@@ -28,3 +28,8 @@ task lint {
 task test {
     gotestsum --format testdox -- -v ./...
 } -Depends lint -Description "Run tests"
+
+task publish {
+    $env:GOPROXY = "proxy.golang.org"
+    go list -m github.com/miroslav-matejovsky/winfileinfo@v0.1.0
+}
