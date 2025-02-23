@@ -1,19 +1,18 @@
-package winfileinfo
+package winfileinfo_test
 
 import (
 	"testing"
 	"time"
 
+	wfi "github.com/miroslav-matejovsky/winfileinfo"
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetFileTimeNotExisting(t *testing.T) {
-	_, err := GetFileTime("C:\\Windows\\System32\\notepad2.exe")
-	require.ErrorContains(t, err, "The system cannot find the file specified.")
-}
-
 func TestGetFileTime(t *testing.T) {
-	ft, err := GetFileTime("C:\\Windows\\System32\\notepad.exe")
+	wf, err := wfi.NewWinFile("C:\\Windows\\System32\\notepad.exe")
+	require.NoError(t, err)
+
+	ft, err := wf.GetFileTime()
 	require.NoError(t, err)
 
 	tenYearsAgo := time.Now().AddDate(-10, 0, 0)

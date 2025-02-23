@@ -1,6 +1,8 @@
 package winfileinfo
 
 type WinFileInfo struct {
+	FileVersion    WinFileVersion
+	ProductVersion WinFileVersion
 }
 
 type WinFileVersion struct {

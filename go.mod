@@ -1,4 +1,4 @@
-module github.com/miroslav-matejovsky/winfiledetails
+module github.com/miroslav-matejovsky/winfileinfo
 
 go 1.24.0
 
