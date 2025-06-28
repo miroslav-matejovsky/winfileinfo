@@ -14,7 +14,7 @@ type WinFileTime struct {
 }
 
 // getFileTime retrieves the creation, last access, and last write times of the file.
-func (wf *WinFile) getFileTime() (*WinFileTime, error) {
+func (wf *WinFileInfo) getFileTime() (*WinFileTime, error) {
 	// Convert path to UTF-16
 	utf16Path, err := windows.UTF16PtrFromString(wf.path)
 	if err != nil {
@@ -34,7 +34,11 @@ func (wf *WinFile) getFileTime() (*WinFileTime, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer windows.Close(handle)
+	defer func() {
+		if err := windows.Close(handle); err != nil {
+			fmt.Printf("failed to close file handle: %v\n", err)
+		}
+	}()
 
 	var ctime, atime, wtime windows.Filetime
 	err = windows.GetFileTime(handle, &ctime, &atime, &wtime)

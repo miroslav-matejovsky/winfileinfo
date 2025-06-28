@@ -1,41 +1,66 @@
+// Package winfileinfo provides utilities for retrieving file information on Windows systems.
 package winfileinfo
 
 import (
+	"crypto/x509"
 	"fmt"
+	"os"
 
 	"golang.org/x/sys/windows"
 )
 
+// WinFileInfo represents a file on the Windows filesystem.
+// This file must exist in the OS
+// afero in memory cannot be used because native Windows APIs are used to retrieve file information.
 type WinFileInfo struct {
-	FileVersion    WinFileVersion
-	ProductVersion WinFileVersion
+	path string
 }
 
-type WinFileVersion struct {
-	Major uint16
-	Minor uint16
-	Patch uint16
-	Build uint16
-}
-
-func (f WinFileVersion) String() string {
-	return fmt.Sprintf("%d.%d.%d.%d", f.Major, f.Minor, f.Patch, f.Build)
-}
-
-// newWinFileInfo creates a new WinFileInfo from the given VS_FIXEDFILEINFO.
-func newWinFileInfo(vsFixedInfo *windows.VS_FIXEDFILEINFO) *WinFileInfo {
-	return &WinFileInfo{
-		FileVersion: WinFileVersion{
-			Major: uint16(vsFixedInfo.FileVersionMS >> 16),
-			Minor: uint16(vsFixedInfo.FileVersionMS & 0xffff),
-			Patch: uint16(vsFixedInfo.FileVersionLS >> 16),
-			Build: uint16(vsFixedInfo.FileVersionLS & 0xffff),
-		},
-		ProductVersion: WinFileVersion{
-			Major: uint16(vsFixedInfo.ProductVersionMS >> 16),
-			Minor: uint16(vsFixedInfo.ProductVersionMS & 0xffff),
-			Patch: uint16(vsFixedInfo.ProductVersionLS >> 16),
-			Build: uint16(vsFixedInfo.ProductVersionLS & 0xffff),
-		},
+// NewWinFileInfo creates a new WinFile for the given path.
+// It returns an error if the file does not exist or if there is an error checking the file.
+func NewWinFileInfo(path string) (*WinFileInfo, error) {
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return nil, fmt.Errorf("file does not exist: %s", path)
 	}
+	if err != nil {
+		return nil, fmt.Errorf("error checking file: %s", err)
+	}
+	return &WinFileInfo{path: path}, nil
+}
+
+// GetFileTime retrieves the file time information for the file.
+// It returns a WinFileTime struct containing the file time information.
+func (wf *WinFileInfo) GetFileTime() (*WinFileTime, error) {
+	return wf.getFileTime()
+}
+
+// GetVersions retrieves the file version information for the file.
+// It returns a WinFileInfo struct containing the file version information.
+func (wf *WinFileInfo) GetVersions() (*WinFileVersions, error) {
+	ffi, err := wf.GetFixedFileInfo()
+	if err != nil {
+		return nil, err
+	}
+	return newWinFileInfo(ffi), nil
+}
+
+// GetFixedFileInfo retrieves the fixed file information for the file.
+// It returns a windows.VS_FIXEDFILEINFO struct containing the fixed file information.
+func (wf *WinFileInfo) GetFixedFileInfo() (*windows.VS_FIXEDFILEINFO, error) {
+	winver, err := initWinVer(wf.path)
+	if err != nil {
+		return nil, err
+	}
+	return winver.queryFixedFileInfo()
+}
+
+// GetCertificates retrieves the embedded certificates from the file.
+// It returns a slice of x509.Certificate pointers or an error if the operation fails.
+func (wf *WinFileInfo) GetCertificates() ([]*x509.Certificate, error) {
+	certs, err := getCertificates(wf.path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to extract certificates: %v", err)
+	}
+	return certs, nil
 }

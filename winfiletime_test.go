@@ -9,7 +9,7 @@ import (
 )
 
 func TestGetFileTime(t *testing.T) {
-	wf, err := wfi.NewWinFile("C:\\Windows\\System32\\notepad.exe")
+	wf, err := wfi.NewWinFileInfo("C:\\Windows\\System32\\notepad.exe")
 	require.NoError(t, err)
 
 	ft, err := wf.GetFileTime()
