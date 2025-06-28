@@ -28,6 +28,7 @@
   "powershell.integratedConsole.showOnStartup": false,
   "powershell.enableProfileLoading": true,
   "cSpell.words": [
+    "afero",
     "bizone",
     "Filetime",
     "fileversion",
