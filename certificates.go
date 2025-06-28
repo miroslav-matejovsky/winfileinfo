@@ -84,15 +84,17 @@ func parseCertificateTable(data []byte) ([]*x509.Certificate, error) {
 
 		// Read the WIN_CERTIFICATE structure
 		length := binary.LittleEndian.Uint32(data[offset:])
-		revision := binary.LittleEndian.Uint16(data[offset+4:])
+		// revision := binary.LittleEndian.Uint16(data[offset+4:])
 		certType := binary.LittleEndian.Uint16(data[offset+6:])
 
 		if length < 8 || offset+int(length) > len(data) {
 			break
 		}
 
-		fmt.Printf("Certificate entry: Length=%d, Revision=0x%x, Type=0x%x\n",
-			length, revision, certType)
+		// slog.Debug("Found certificate entry",
+		// 	"Length", length,
+		// 	"Revision", fmt.Sprintf("0x%x", revision),
+		// 	"Type", fmt.Sprintf("0x%x", certType))
 
 		// WIN_CERT_TYPE_PKCS_SIGNED_DATA = 0x0002
 		if certType == 0x0002 {
