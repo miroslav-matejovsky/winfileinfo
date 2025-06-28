@@ -7,14 +7,14 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-type WinFileTime struct {
+type FileTime struct {
 	CreationTime   time.Time
 	LastAccessTime time.Time
 	LastWriteTime  time.Time
 }
 
 // getFileTime retrieves the creation, last access, and last write times of the file.
-func (wf *WinFileInfo) getFileTime() (*WinFileTime, error) {
+func (wf *WinFileInfo) getFileTime() (*FileTime, error) {
 	// Convert path to UTF-16
 	utf16Path, err := windows.UTF16PtrFromString(wf.path)
 	if err != nil {
@@ -45,7 +45,7 @@ func (wf *WinFileInfo) getFileTime() (*WinFileTime, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file time: %w", err)
 	}
-	return &WinFileTime{
+	return &FileTime{
 		CreationTime:   time.Unix(0, ctime.Nanoseconds()),
 		LastAccessTime: time.Unix(0, atime.Nanoseconds()),
 		LastWriteTime:  time.Unix(0, wtime.Nanoseconds()),

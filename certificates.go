@@ -7,9 +7,40 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
+	"time"
 )
 
-func getCertificates(filepath string) ([]*x509.Certificate, error) {
+type Certificates struct {
+	Certificates []*x509.Certificate
+}
+
+func (c *Certificates) SignedBy(verifier string) bool {
+	if len(c.Certificates) == 0 {
+		return false
+	}
+	for _, cert := range c.Certificates {
+		if strings.EqualFold(cert.Subject.CommonName, verifier) {
+			return true
+		}
+	}
+	return false
+}
+
+func (c *Certificates) ValidAtSignedBy(verifier string, at time.Time) bool {
+	if len(c.Certificates) == 0 {
+		return false
+	}
+	for _, cert := range c.Certificates {
+		valid := cert.NotBefore.Before(at) && cert.NotAfter.After(at)
+		if strings.EqualFold(cert.Subject.CommonName, verifier) && valid {
+			return true
+		}
+	}
+	return false
+}
+
+func getCertificates(filepath string) (*Certificates, error) {
 	file, err := os.Open(filepath)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %v", err)
@@ -32,7 +63,7 @@ func getCertificates(filepath string) ([]*x509.Certificate, error) {
 		return nil, fmt.Errorf("failed to extract certificates: %v", err)
 	}
 
-	return certs, nil
+	return &Certificates{Certificates: certs}, nil
 }
 
 func extractCertificates(file *os.File, peFile *pe.File) ([]*x509.Certificate, error) {
@@ -55,7 +86,7 @@ func extractCertificates(file *os.File, peFile *pe.File) ([]*x509.Certificate, e
 	}
 
 	if certDir.Size == 0 {
-		return nil, fmt.Errorf("no embedded signatures found")
+		return nil, nil
 	}
 
 	// Read the certificate table

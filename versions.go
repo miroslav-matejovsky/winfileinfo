@@ -6,7 +6,7 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-type WinFileVersions struct {
+type Versions struct {
 	FileVersion    WinFileVersion
 	ProductVersion WinFileVersion
 }
@@ -23,8 +23,8 @@ func (f WinFileVersion) String() string {
 }
 
 // newWinFileInfo creates a new WinFileInfo from the given VS_FIXEDFILEINFO.
-func newWinFileInfo(vsFixedInfo *windows.VS_FIXEDFILEINFO) *WinFileVersions {
-	return &WinFileVersions{
+func newWinFileInfo(vsFixedInfo *windows.VS_FIXEDFILEINFO) *Versions {
+	return &Versions{
 		FileVersion: WinFileVersion{
 			Major: uint16(vsFixedInfo.FileVersionMS >> 16),
 			Minor: uint16(vsFixedInfo.FileVersionMS & 0xffff),

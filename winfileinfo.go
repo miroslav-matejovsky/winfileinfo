@@ -2,7 +2,6 @@
 package winfileinfo
 
 import (
-	"crypto/x509"
 	"fmt"
 	"os"
 
@@ -31,13 +30,13 @@ func NewWinFileInfo(path string) (*WinFileInfo, error) {
 
 // GetFileTime retrieves the file time information for the file.
 // It returns a WinFileTime struct containing the file time information.
-func (wf *WinFileInfo) GetFileTime() (*WinFileTime, error) {
+func (wf *WinFileInfo) GetFileTime() (*FileTime, error) {
 	return wf.getFileTime()
 }
 
 // GetVersions retrieves the file version information for the file.
 // It returns a WinFileInfo struct containing the file version information.
-func (wf *WinFileInfo) GetVersions() (*WinFileVersions, error) {
+func (wf *WinFileInfo) GetVersions() (*Versions, error) {
 	ffi, err := wf.GetFixedFileInfo()
 	if err != nil {
 		return nil, err
@@ -57,7 +56,7 @@ func (wf *WinFileInfo) GetFixedFileInfo() (*windows.VS_FIXEDFILEINFO, error) {
 
 // GetCertificates retrieves the embedded certificates from the file.
 // It returns a slice of x509.Certificate pointers or an error if the operation fails.
-func (wf *WinFileInfo) GetCertificates() ([]*x509.Certificate, error) {
+func (wf *WinFileInfo) GetCertificates() (*Certificates, error) {
 	certs, err := getCertificates(wf.path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to extract certificates: %v", err)
