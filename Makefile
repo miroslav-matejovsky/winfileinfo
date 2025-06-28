@@ -1,4 +1,4 @@
-.PHONY: go-deps-ls
+.PHONY: go-deps-ls deps fmt lint test publish
 
 go-deps-ls:
 	go list -u -m -f '{{if not .Indirect}}{{.}}{{end}}' all
@@ -16,6 +16,8 @@ lint: fmt deps
 test: lint
 	gotestsum --format testdox -- -v ./...
 
-# publish:
-# 	$env:GOPROXY = "proxy.golang.org"
-# 	go list -m github.com/miroslav-matejovsky/winfileinfo@v0.1.0
+# Usage: make publish VERSION=v0.1.0
+publish:
+	git tag $(VERSION)
+	git push origin $(VERSION)
+	go list -m github.com/miroslav-matejovsky/winfileinfo@$(VERSION)
