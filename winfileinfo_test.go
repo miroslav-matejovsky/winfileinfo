@@ -21,7 +21,7 @@ func TestGetFileVersionInfo(t *testing.T) {
 
 	fi, err := wf.GetFileInfo()
 	require.NoError(t, err)
-	
+
 	assert.Equal(t, expected.FileVersion.Major, fi.FileVersion.Major)
 	assert.Equal(t, expected.FileVersion.Minor, fi.FileVersion.Minor)
 	// !!! the bug is bi-zone go-fileversion library, the Patch and Build are swapped

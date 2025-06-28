@@ -1,17 +1,45 @@
 {
-    "cSpell.words": [
-        "bizone",
-        "Filetime",
-        "fileversion",
-        "FIXEDFILEINFO",
-        "matejovsky",
-        "miroslav",
-        "stretchr",
-        "Struc",
-        "winfiledetails",
-        "winfileinfo",
-        "winio",
-        "winver",
-        "wtime"
-    ]
+  "window.title": "${rootName}",
+  "editor.renderWhitespace": "all",
+  "editor.renderControlCharacters": true,
+  "editor.formatOnSave": true,
+  "editor.tabSize": 2,
+  "github.copilot.nextEditSuggestions.enabled": true,
+  "github.copilot.enable": {
+    "*": true,
+    "plaintext": true,
+    "markdown": true
+  },
+  "git.autofetch": false,
+  "git.branchProtection": [
+    "main"
+  ],
+  "workbench.editor.showTabs": "none",
+  "workbench.colorTheme": "Flexoki Dark",
+  "terminal.integrated.fontFamily": "MesloLGS Nerd Font",
+  "terminal.integrated.profiles.windows": {
+    "pwsh": {
+      "source": "PowerShell",
+      "icon": "terminal-powershell"
+    }
+  },
+  "terminal.integrated.defaultProfile.windows": "pwsh",
+  "powershell.startAutomatically": true,
+  "powershell.integratedConsole.showOnStartup": false,
+  "powershell.enableProfileLoading": true,
+  "cSpell.words": [
+    "bizone",
+    "Filetime",
+    "fileversion",
+    "FIXEDFILEINFO",
+    "matejovsky",
+    "miroslav",
+    "stretchr",
+    "Struc",
+    "winfiledetails",
+    "winfileinfo",
+    "winio",
+    "winver",
+    "wtime"
+  ]
 }

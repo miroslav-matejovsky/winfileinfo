@@ -34,7 +34,11 @@ func (wf *WinFile) getFileTime() (*WinFileTime, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to open file: %w", err)
 	}
-	defer windows.Close(handle)
+	defer func() {
+		if err := windows.Close(handle); err != nil {
+			fmt.Printf("failed to close file handle: %v\n", err)
+		}
+	}()
 
 	var ctime, atime, wtime windows.Filetime
 	err = windows.GetFileTime(handle, &ctime, &atime, &wtime)

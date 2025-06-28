@@ -24,7 +24,7 @@ func initWinVer(filePath string) (*winver, error) {
 	// https://learn.microsoft.com/en-us/windows/win32/api/winver/nf-winver-getfileversioninfoa
 	var ignoredHandle uint32 // described as Ignored in the documentation
 	buffer := make([]byte, size)
-	var lpData unsafe.Pointer = unsafe.Pointer(&buffer[0])
+	var lpData = unsafe.Pointer(&buffer[0])
 	err = windows.GetFileVersionInfo(filePath, ignoredHandle, size, lpData)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get file version info: %w", err)
@@ -38,7 +38,7 @@ func initWinVer(filePath string) (*winver, error) {
 // https://learn.microsoft.com/en-us/windows/win32/api/verrsrc/ns-verrsrc-vs_fixedfileinfo
 func (f *winver) queryFixedFileInfo() (*windows.VS_FIXEDFILEINFO, error) {
 	var offset uintptr = 0
-	var offsetPointer unsafe.Pointer = unsafe.Pointer(&offset)
+	var offsetPointer = unsafe.Pointer(&offset)
 	var length uint32
 	// https://learn.microsoft.com/en-us/windows/win32/api/winver/nf-winver-verqueryvaluea
 	err := windows.VerQueryValue(f.dataPointer, `\`, offsetPointer, &length)
