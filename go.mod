@@ -3,9 +3,11 @@ module github.com/miroslav-matejovsky/winfileinfo
 go 1.24.4
 
 require (
-	github.com/stretchr/testify v1.10.0
-	golang.org/x/sys v0.33.0
+	github.com/stretchr/testify v1.11.1
+	golang.org/x/sys v0.39.0
 )
+
+require github.com/magefile/mage v1.15.0
 
 require (
 	github.com/bi-zone/go-fileversion v1.0.0

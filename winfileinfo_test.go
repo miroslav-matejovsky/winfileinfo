@@ -16,6 +16,8 @@ func TestNonExistentFile(t *testing.T) {
 const signer = "some signer"
 
 func TestSignedExe(t *testing.T) {
+	skipIfNoTestdataDir(t)
+
 	wfi, err := wfi.NewWinFileInfo("testdata\\signed.exe")
 	require.NoError(t, err)
 	certificates, err := wfi.GetCertificates()
@@ -38,6 +40,8 @@ func TestSignedExe(t *testing.T) {
 }
 
 func TestInstalledExe(t *testing.T) {
+	skipIfNoTestdataDir(t)
+
 	wfi, err := wfi.NewWinFileInfo("testdata\\installed.exe")
 	require.NoError(t, err)
 	certificates, err := wfi.GetCertificates()
@@ -60,6 +64,8 @@ func TestInstalledExe(t *testing.T) {
 }
 
 func TestUnsignedExe(t *testing.T) {
+	skipIfNoTestdataDir(t)
+
 	wfi, err := wfi.NewWinFileInfo("testdata\\unsigned.exe")
 	require.NoError(t, err)
 	certificates, err := wfi.GetCertificates()
@@ -73,4 +79,12 @@ func TestUnsignedExe(t *testing.T) {
 	require.NotNil(t, versions)
 
 	require.Equal(t, "5.3.0.0", versions.FileVersion.String())
+}
+
+func skipIfNoTestdataDir(t *testing.T) {
+	t.Helper()
+	_, err := wfi.NewWinFileInfo("testdata")
+	if err != nil {
+		t.Skip("Skipping test: testdata directory not found")
+	}
 }
