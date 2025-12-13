@@ -12,14 +12,15 @@ func TestExistingFile(t *testing.T) {
 	// Create a temporary file
 	tmpFile, err := os.CreateTemp("", "testfile_*.txt")
 	require.NoError(t, err)
-	defer os.Remove(tmpFile.Name()) // Clean up
+	t.Cleanup(func() { _ = os.Remove(tmpFile.Name()) })
 
 	// Write something to it to ensure it's a valid file
 	_, err = tmpFile.WriteString("test content")
 	require.NoError(t, err)
 
 	// Close the file
-	tmpFile.Close()
+	err = tmpFile.Close()
+	require.NoError(t, err)
 
 	// Attempt to create WinFileInfo from the closed existing file
 	_, err = wfi.NewWinFileInfo(tmpFile.Name())
@@ -35,7 +36,7 @@ func TestNotClosedFileReturnError(t *testing.T) {
 	// Create a temporary file
 	tmpFile, err := os.CreateTemp("", "testfile_*.txt")
 	require.NoError(t, err)
-	defer os.Remove(tmpFile.Name()) // Clean up
+	t.Cleanup(func() { _ = os.Remove(tmpFile.Name()) })
 
 	// Write something to it to ensure it's a valid file
 	_, err = tmpFile.WriteString("test content")
@@ -47,5 +48,6 @@ func TestNotClosedFileReturnError(t *testing.T) {
 	require.Error(t, err) // Should return an error because the file is open
 
 	// Now close the file
-	tmpFile.Close()
+	err = tmpFile.Close()
+	require.NoError(t, err)
 }

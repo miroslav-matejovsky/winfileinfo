@@ -33,7 +33,9 @@ func NewWinFileInfo(path string) (*WinFileInfo, error) {
 	if err != nil {
 		return nil, fmt.Errorf("error accessing file: %s", err)
 	}
-	windows.CloseHandle(handle)
+	if err := windows.CloseHandle(handle); err != nil {
+		return nil, fmt.Errorf("error closing file handle: %s", err)
+	}
 	return &WinFileInfo{path: path}, nil
 }
 
@@ -48,7 +50,7 @@ func (wf *WinFileInfo) GetFileTime() (*FileTime, error) {
 func (wf *WinFileInfo) GetVersions() (*Versions, error) {
 	ffi, err := wf.GetFixedFileInfo()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to get fixed file info: %v", err)
 	}
 	return newWinFileInfo(ffi), nil
 }
@@ -58,7 +60,7 @@ func (wf *WinFileInfo) GetVersions() (*Versions, error) {
 func (wf *WinFileInfo) GetFixedFileInfo() (*windows.VS_FIXEDFILEINFO, error) {
 	winver, err := initWinVer(wf.path)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to initialize WinVer: %v", err)
 	}
 	return winver.queryFixedFileInfo()
 }
