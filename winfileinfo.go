@@ -26,7 +26,7 @@ func NewWinFileInfo(path string) (*WinFileInfo, error) {
 		return nil, fmt.Errorf("error checking file: %s", err)
 	}
 	// Check if the file is opened by another process
-	handle, err := windows.CreateFile(windows.StringToUTF16Ptr(path), 0, 0, nil, windows.OPEN_EXISTING, windows.FILE_ATTRIBUTE_NORMAL, 0)
+	handle, err := windows.CreateFile(windows.StringToUTF16Ptr(path), windows.GENERIC_READ, 0, nil, windows.OPEN_EXISTING, windows.FILE_ATTRIBUTE_NORMAL, 0)
 	if err == windows.ERROR_SHARING_VIOLATION {
 		return nil, fmt.Errorf("file is opened by another process: %s", path)
 	}
