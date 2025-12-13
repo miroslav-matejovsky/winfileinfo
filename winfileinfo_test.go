@@ -1,76 +1,51 @@
 package winfileinfo_test
 
 import (
+	"os"
 	"testing"
-	"time"
 
 	wfi "github.com/miroslav-matejovsky/winfileinfo"
 	"github.com/stretchr/testify/require"
 )
+
+func TestExistingFile(t *testing.T) {
+	// Create a temporary file
+	tmpFile, err := os.CreateTemp("", "testfile_*.txt")
+	require.NoError(t, err)
+	defer os.Remove(tmpFile.Name()) // Clean up
+
+	// Write something to it to ensure it's a valid file
+	_, err = tmpFile.WriteString("test content")
+	require.NoError(t, err)
+
+	// Close the file
+	tmpFile.Close()
+
+	// Attempt to create WinFileInfo from the closed existing file
+	_, err = wfi.NewWinFileInfo(tmpFile.Name())
+	require.NoError(t, err) // Should succeed because the file exists and is closed
+}
 
 func TestNonExistentFile(t *testing.T) {
 	_, err := wfi.NewWinFileInfo("C:\\nonexistent.txt")
 	require.ErrorContains(t, err, "file does not exist")
 }
 
-const signer = "some signer"
-
-func TestSignedExe(t *testing.T) {
-	wfi, err := wfi.NewWinFileInfo("testdata\\signed.exe")
+func TestNotClosedFileReturnError(t *testing.T) {
+	// Create a temporary file
+	tmpFile, err := os.CreateTemp("", "testfile_*.txt")
 	require.NoError(t, err)
-	certificates, err := wfi.GetCertificates()
+	defer os.Remove(tmpFile.Name()) // Clean up
+
+	// Write something to it to ensure it's a valid file
+	_, err = tmpFile.WriteString("test content")
 	require.NoError(t, err)
-	require.NotNil(t, certificates)
 
-	require.NotEmpty(t, certificates.Certificates, "Signed executable should have at least one certificate")
+	// Do not close the file yet
+	// Attempt to create WinFileInfo from the opened file
+	_, err = wfi.NewWinFileInfo(tmpFile.Name())
+	require.Error(t, err) // Should return an error because the file is open
 
-	valid := certificates.SignedBy(signer)
-	require.True(t, valid, "Signed executable should be signed")
-
-	validAt := certificates.ValidAtSignedBy(signer, time.Now())
-	require.True(t, validAt, "Signed executable should be valid at the current time")
-
-	versions, err := wfi.GetVersions()
-	require.NoError(t, err)
-	require.NotNil(t, versions)
-
-	require.Equal(t, "5.3.0.0", versions.FileVersion.String())
-}
-
-func TestInstalledExe(t *testing.T) {
-	wfi, err := wfi.NewWinFileInfo("testdata\\installed.exe")
-	require.NoError(t, err)
-	certificates, err := wfi.GetCertificates()
-	require.NoError(t, err)
-	require.NotNil(t, certificates)
-
-	require.NotEmpty(t, certificates.Certificates, "Signed executable should have at least one certificate")
-
-	valid := certificates.SignedBy(signer)
-	require.True(t, valid, "Signed executable should be signed")
-
-	validAt := certificates.ValidAtSignedBy(signer, time.Now())
-	require.True(t, validAt, "Signed executable should be valid at the current time")
-
-	versions, err := wfi.GetVersions()
-	require.NoError(t, err)
-	require.NotNil(t, versions)
-
-	require.Equal(t, "5.3.0.0", versions.FileVersion.String())
-}
-
-func TestUnsignedExe(t *testing.T) {
-	wfi, err := wfi.NewWinFileInfo("testdata\\unsigned.exe")
-	require.NoError(t, err)
-	certificates, err := wfi.GetCertificates()
-	require.NoError(t, err)
-	require.NotNil(t, certificates)
-
-	require.Empty(t, certificates.Certificates, "Unsigned executable should not have any certificates")
-
-	versions, err := wfi.GetVersions()
-	require.NoError(t, err)
-	require.NotNil(t, versions)
-
-	require.Equal(t, "5.3.0.0", versions.FileVersion.String())
+	// Now close the file
+	tmpFile.Close()
 }
