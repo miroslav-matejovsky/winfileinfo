@@ -8,6 +8,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestExistingFile(t *testing.T) {
+	// Create a temporary file
+	tmpFile, err := os.CreateTemp("", "testfile_*.txt")
+	require.NoError(t, err)
+	defer os.Remove(tmpFile.Name()) // Clean up
+
+	// Write something to it to ensure it's a valid file
+	_, err = tmpFile.WriteString("test content")
+	require.NoError(t, err)
+
+	// Close the file
+	tmpFile.Close()
+
+	// Attempt to create WinFileInfo from the closed existing file
+	_, err = wfi.NewWinFileInfo(tmpFile.Name())
+	require.NoError(t, err) // Should succeed because the file exists and is closed
+}
+
 func TestNonExistentFile(t *testing.T) {
 	_, err := wfi.NewWinFileInfo("C:\\nonexistent.txt")
 	require.ErrorContains(t, err, "file does not exist")
